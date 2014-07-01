@@ -10,6 +10,6 @@
  */
 
 /**
- * Example code.
+ * User interfaces for the example application.
  */
-package com.example.app;
+package com.facultyshowcase.app.ui;

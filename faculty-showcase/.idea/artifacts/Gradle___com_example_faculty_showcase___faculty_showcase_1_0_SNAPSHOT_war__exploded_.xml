@@ -1,8 +1,8 @@
 <component name="ArtifactManager">
-  <artifact type="war" name="Gradle : com.example:faculty-app : faculty-app-1.0-SNAPSHOT.war">
-    <output-path>$PROJECT_DIR$/build/idea/artifacts/faculty-app</output-path>
-    <root id="archive" name="faculty-app-1.0-SNAPSHOT.war">
-      <element id="javaee-facet-resources" facet="faculty-showcase/web/Web Gradle : faculty-app-1.0-SNAPSHOT.war" />
+  <artifact type="exploded-war" name="Gradle : com.example:faculty-showcase : faculty-showcase-1.0-SNAPSHOT.war (exploded)">
+    <output-path>$PROJECT_DIR$/build/idea/artifacts/faculty-showcase/exploded/faculty-showcase-1.0-SNAPSHOT.war</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="faculty-showcase/web/Web Gradle : faculty-showcase-1.0-SNAPSHOT.war" />
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="faculty-showcase" />
@@ -225,7 +225,7 @@
         </element>
       </element>
       <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/build/idea/artifacts/faculty-app/exploded/faculty-app-1.0-SNAPSHOT.war/META-INF/MANIFEST.MF" />
+        <element id="file-copy" path="$PROJECT_DIR$/build/idea/artifacts/faculty-showcase/exploded/faculty-showcase-1.0-SNAPSHOT.war/META-INF/MANIFEST.MF" />
       </element>
     </root>
   </artifact>

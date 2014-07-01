@@ -9,7 +9,7 @@
  * into with I2RD.
  */
 
-package com.example.app;
+package com.facultyshowcase.app;
 
 import java.io.IOException;
 

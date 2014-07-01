@@ -10,6 +10,6 @@
  */
 
 /**
- * Data models for the example application.
+ * Example code.
  */
-package com.example.app.model;
+package com.facultyshowcase.app;

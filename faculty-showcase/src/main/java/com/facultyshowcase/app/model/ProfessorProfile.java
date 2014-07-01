@@ -9,7 +9,7 @@
  * into with I2RD.
  */
 
-package com.example.app.model;
+package com.facultyshowcase.app.model;
 
 import com.google.common.base.Preconditions;
 import org.hibernate.validator.constraints.Email;
@@ -26,6 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.net.URL;
 import java.util.Date;
@@ -42,10 +43,11 @@ import net.proteusframework.users.model.Name;
  * @author Russ Tennant (russ@i2rd.com)
  */
 @Entity
-public class UserProfile implements TimeAuditable
+@Table(name = "professor_profile")
+public class ProfessorProfile implements TimeAuditable
 {
     /** Sequence name. */
-    private final static String SEQ = "userprofile_seq";
+    private final static String SEQ = "ProfessorProfile_seq";
     /** Identifier. */
     private long _id;
     /** Name - we'll use some of the properties of this class. */
@@ -78,7 +80,7 @@ public class UserProfile implements TimeAuditable
     /**
      * Create a new User Profile.
      */
-    public UserProfile()
+    public ProfessorProfile()
     {
         super();
     }
@@ -88,7 +90,7 @@ public class UserProfile implements TimeAuditable
      *
      * @param toCopy profile to copy.
      */
-    public UserProfile(UserProfile toCopy)
+    public ProfessorProfile(ProfessorProfile toCopy)
     {
         super();
         setName(new Name(toCopy.getName()));
@@ -113,7 +115,7 @@ public class UserProfile implements TimeAuditable
     @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO, generator = SEQ)
     @SequenceGenerator(name = SEQ, sequenceName = SEQ)
-    @Column(name = "userprofile_id")
+    @Column(name = "ProfessorProfile_id")
     public Long getId()
     {
         return _id;
@@ -405,9 +407,9 @@ public class UserProfile implements TimeAuditable
     public boolean equals(Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof UserProfile)) return false;
+        if (!(o instanceof ProfessorProfile)) return false;
 
-        UserProfile that = (UserProfile) o;
+        ProfessorProfile that = (ProfessorProfile) o;
 
         if (getId() != null)
             return getId().equals(that.getId());

@@ -9,10 +9,10 @@
  * into with I2RD.
  */
 
-package com.example.app.ui;
+package com.facultyshowcase.app.ui;
 
-import com.example.app.model.UserProfile;
-import com.example.app.model.UserProfileDAO;
+import com.facultyshowcase.app.model.ProfessorProfile;
+import com.facultyshowcase.app.model.ProfessorProfileDAO;
 import com.google.common.base.Preconditions;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -57,30 +57,30 @@ import net.proteusframework.users.model.Address;
 import net.proteusframework.users.model.Name;
 
 /**
- * UI view for UserProfile.
+ * UI view for ProfessorProfile.
  * @author Russ Tennant (russ@venturetech.net)
  */
 @Configurable
-public class UserProfileViewer extends Container
+public class ProfessorProfileViewer extends Container
 {
     /** Logger. */
-    private final static Logger _logger = Logger.getLogger(UserProfileViewer.class);
+    private final static Logger _logger = Logger.getLogger(ProfessorProfileViewer.class);
     /** Profile. */
-    private final UserProfile _userProfile;
+    private final ProfessorProfile _ProfessorProfile;
 
     /** DAO. */
     @Autowired
-    private UserProfileDAO _userProfileDAO;
+    private ProfessorProfileDAO _ProfessorProfileDAO;
 
     /**
      * Create a new viewer.
      * @param profile the profile.
      */
-    public UserProfileViewer(UserProfile profile)
+    public ProfessorProfileViewer(ProfessorProfile profile)
     {
         super();
         Preconditions.checkNotNull(profile);
-        _userProfile = profile;
+        _ProfessorProfile = profile;
     }
 
     @Override
@@ -106,11 +106,11 @@ public class UserProfileViewer extends Container
 
         // It's a good idea to *not* mark variables final that you don't want in the scope of event listeners.
         /// Hibernate/JPA entities are a great example of this pattern. You always need to re-attach
-        /// entities before using them, so we should always call getUserProfile() in the context
-        /// of handling an event. Note: our getUserProfile() method re-attaches the entity.
-        UserProfile userProfile = getUserProfile();
+        /// entities before using them, so we should always call getProfessorProfile() in the context
+        /// of handling an event. Note: our getProfessorProfile() method re-attaches the entity.
+        ProfessorProfile ProfessorProfile = getProfessorProfile();
 
-        Name name = userProfile.getName();
+        Name name = ProfessorProfile.getName();
         // You can use a Field for displaying non-internationalized content.
         /// It is desirable to do this since you don't need to create a LocalizedText.
         /// However, you cannot change the HTMLElement of a Field at this time,
@@ -127,7 +127,7 @@ public class UserProfileViewer extends Container
         if(StringFactory.isEmptyString(nameSuffix.getText())) nameSuffix.setVisible(false);
 
         // Address
-        Address address = userProfile.getPostalAddress();
+        Address address = ProfessorProfile.getPostalAddress();
         // Address lines are always on their own line so we make sure they are enclosed by a block element like a DIV..
         final Label addressLine1 = new Label();
         addressLine1.setHTMLElement(HTMLElement.div).addClassName("prop").addClassName("address_line");
@@ -155,21 +155,21 @@ public class UserProfileViewer extends Container
         postalCode.addClassName("prop").addClassName("postal_code");
 
         // Other Contact
-        final Field phoneNumber = new Field(userProfile.getPhoneNumber(), false);
-        final Field emailAddress = new Field(userProfile.getEmailAddress(), false);
+        final Field phoneNumber = new Field(ProfessorProfile.getPhoneNumber(), false);
+        final Field emailAddress = new Field(ProfessorProfile.getEmailAddress(), false);
 
         // Social Contact
-        final URILink twitterLink = userProfile.getTwitterLink() != null
-            ? new URILink(_userProfileDAO.toURI(userProfile.getTwitterLink(), null)) : null;
-        final URILink facebookLink = userProfile.getFacebookLink() != null
-            ? new URILink(_userProfileDAO.toURI(userProfile.getFacebookLink(), null)) : null;
-        final URILink linkedInLink = userProfile.getLinkedInLink() != null
-            ? new URILink(_userProfileDAO.toURI(userProfile.getLinkedInLink(), null)) : null;
+        final URILink twitterLink = ProfessorProfile.getTwitterLink() != null
+            ? new URILink(_ProfessorProfileDAO.toURI(ProfessorProfile.getTwitterLink(), null)) : null;
+        final URILink facebookLink = ProfessorProfile.getFacebookLink() != null
+            ? new URILink(_ProfessorProfileDAO.toURI(ProfessorProfile.getFacebookLink(), null)) : null;
+        final URILink linkedInLink = ProfessorProfile.getLinkedInLink() != null
+            ? new URILink(_ProfessorProfileDAO.toURI(ProfessorProfile.getLinkedInLink(), null)) : null;
 
         // We are going to output HTML received from the outside, so we need to sanitize it first for security reasons.
         /// Sometimes you'll do this sanitation prior to persisting the data. It depends on whether or not you need to
         /// keep the original unsanitized HTML around.
-        String processedHTML = userProfile.getAboutMeProse();
+        String processedHTML = ProfessorProfile.getAboutMeProse();
         if(!StringFactory.isEmptyString(processedHTML))
         {
             // Process the HTML converting links as necessary (adding JSESSIONID(s)
@@ -197,7 +197,7 @@ public class UserProfileViewer extends Container
         }
         final HTMLComponent aboutMeProse = new HTMLComponent(processedHTML);
         Component aboutMeVideo = null;
-        URL videoLink = userProfile.getAboutMeVideoLink();
+        URL videoLink = ProfessorProfile.getAboutMeVideoLink();
         if(videoLink != null)
         {
             // There are several ways to link to media (Youtube video URL, Vimeo video URL, Flickr URL, internally hosted media file, etc).
@@ -205,7 +205,7 @@ public class UserProfileViewer extends Container
             /// You can embed it. See http://oembed.com/ for a common protocol for doing this.
             /// If the link is to the media itself, you can create a player for it.
             /// Below is an example of creating a link to the video as well as a player.
-            final URI videoLinkURI = _userProfileDAO.toURI(videoLink, null);
+            final URI videoLinkURI = _ProfessorProfileDAO.toURI(videoLink, null);
             URILink videoLinkComponent = new URILink(videoLinkURI, TextSources.create("My Video"));
             videoLinkComponent.setTarget("_blank");
             IMediaUtility util = MediaUtilityFactory.getUtility();
@@ -257,11 +257,11 @@ public class UserProfileViewer extends Container
             }
         }
         ImageComponent picture = null;
-        final FileEntity userProfilePicture = userProfile.getPicture();
-        if(userProfilePicture != null)
+        final FileEntity ProfessorProfilePicture = ProfessorProfile.getPicture();
+        if(ProfessorProfilePicture != null)
         {
-            picture = new ImageComponent(new Image(userProfilePicture));
-            picture.setImageCaching(userProfilePicture.getLastModifiedTime().before(
+            picture = new ImageComponent(new Image(ProfessorProfilePicture));
+            picture.setImageCaching(ProfessorProfilePicture.getLastModifiedTime().before(
                 new Date(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(60))
             ));
         }
@@ -307,7 +307,7 @@ public class UserProfileViewer extends Container
                 contactContainer.add(of(HTMLElement.div,
                         "prop-group address",
                         // We are using an H2 here because are immediate ancestor is a DIV. If it was a SECTION,
-                        /// then we would use an H1. See the UserProfileViewer for a comparison.
+                        /// then we would use an H1. See the ProfessorProfileViewer for a comparison.
                         new Label(TextSources.create("Address")).setHTMLElement(HTMLElement.h2),
                         streetAddress,
                         of(HTMLElement.div, "place",
@@ -429,10 +429,10 @@ public class UserProfileViewer extends Container
      * Get the user profile attached to the Hibernate Session or EntityManager.
      * @return the attached profile.
      */
-    UserProfile getUserProfile()
+    ProfessorProfile getProfessorProfile()
     {
-        // Since we aren't actually persisting anything, this doesn't do anything other than return _userProfile
+        // Since we aren't actually persisting anything, this doesn't do anything other than return _ProfessorProfile
         /// It's just meant to demonstrate how to do it when you are using entities persisted in data store.
-        return EntityRetriever.getInstance().reattachIfNecessary(_userProfile);
+        return EntityRetriever.getInstance().reattachIfNecessary(_ProfessorProfile);
     }
 }

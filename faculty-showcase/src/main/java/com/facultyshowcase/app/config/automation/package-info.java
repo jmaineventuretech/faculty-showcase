@@ -10,6 +10,6 @@
  */
 
 /**
- * User interfaces for the example application.
+ * Automation configuration.
  */
-package com.example.app.ui;
+package com.facultyshowcase.app.config.automation;

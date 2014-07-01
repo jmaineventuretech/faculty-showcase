@@ -9,7 +9,7 @@
  * into with I2RD.
  */
 
-package com.example.app.ui;
+package com.facultyshowcase.app.ui;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.log4j.Level;

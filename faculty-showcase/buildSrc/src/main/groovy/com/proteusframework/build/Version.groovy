@@ -26,7 +26,7 @@ class Version
      * If not defined, the package name is <code> "${project.group}.${project.name}"</code>.
      * <p>
      *     Example: <br>
-     *     <code>ext[Version.PROJECT_INFORMATION_PACKAGE] = 'com.example.app.config'
+     *     <code>ext[Version.PROJECT_INFORMATION_PACKAGE] = 'com.facultyshowcase.app.config'
      * </p>
      */
     public static final String PROJECT_INFORMATION_PACKAGE = 'projectInformationPackage'

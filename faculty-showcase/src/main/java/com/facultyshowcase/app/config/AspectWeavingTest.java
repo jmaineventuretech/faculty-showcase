@@ -9,7 +9,7 @@
  * into with I2RD.
  */
 
-package com.example.app.config;
+package com.facultyshowcase.app.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -29,7 +29,7 @@ public class AspectWeavingTest
      * @param config configuration.
      */
     @Autowired
-    public void setAppConfig(MyAppConfig config)
+    public void setAppConfig(FacultyShowcaseAppConfig config)
     {
         _configured = (config != null);
     }

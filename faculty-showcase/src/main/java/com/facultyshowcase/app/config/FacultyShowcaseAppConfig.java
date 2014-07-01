@@ -9,7 +9,7 @@
  * into with I2RD.
  */
 
-package com.example.app.config;
+package com.facultyshowcase.app.config;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -49,7 +49,7 @@ import static com.i2rd.hibernate.util.LocationQualifier.Type.orm_location;
 @EnableScheduling
 @EnableSpringConfigured
 // Scan for spring components in my package hierarchy
-@ComponentScan({"com.example.app"})
+@ComponentScan({"com.facultyshowcase.app"})
 // Add spring xml files if you'd like to register spring beans with XML.
 //@ImportResource("classpath:/spring/*.spring.xml")
 @Import(ProteusWebAppConfig.class)
@@ -63,14 +63,14 @@ import static com.i2rd.hibernate.util.LocationQualifier.Type.orm_location;
 @PropertySource(
     name = "your-app-props",
     value = {
-        "classpath:/com/example/app/config/default.properties",
+        "classpath:/com/facultyshowcase/app/config/default.properties",
         ProteusWebAppConfig.PROTEUSFRAMEWORK_SPRING_PROPERTIES_PLACEHOLDER,
     }
 )
-public class MyAppConfig implements ApplicationListener
+public class FacultyShowcaseAppConfig implements ApplicationListener
 {
     /** Logger. */
-    private final static Logger _logger = Logger.getLogger(MyAppConfig.class);
+    private final static Logger _logger = Logger.getLogger(FacultyShowcaseAppConfig.class);
     /*
      * If you would like to setup your own servlets or filters either
      *
@@ -109,7 +109,7 @@ public class MyAppConfig implements ApplicationListener
     public StaticKeyDataConfig staticKeyDataConfig()
     {
         StaticKeyDataConfig config = new StaticKeyDataConfig();
-        config.addScanPackage("com.example.app");
+        config.addScanPackage("com.facultyshowcase.app");
         return config;
     }
 
@@ -121,7 +121,7 @@ public class MyAppConfig implements ApplicationListener
     @LocationQualifier(orm_location)
     public String ormLocationComExample()
     {
-        return "classpath*:com/example/app/**/*.hbm.xml";
+        return "classpath*:com/facultyshowcase/app/**/*.hbm.xml";
     }
 
     /**
@@ -132,7 +132,7 @@ public class MyAppConfig implements ApplicationListener
     @LocationQualifier(entity_location)
     public String annotatedEntityScanComExample()
     {
-        return "com.example.app";
+        return "com.facultyshowcase.app";
     }
 
 

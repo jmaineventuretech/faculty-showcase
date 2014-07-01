@@ -9,10 +9,10 @@
  * into with I2RD.
  */
 
-package com.example.app.ui;
+package com.facultyshowcase.app.ui;
 
-import com.example.app.model.UserProfile;
-import com.example.app.model.UserProfileDAO;
+import com.facultyshowcase.app.model.ProfessorProfile;
+import com.facultyshowcase.app.model.ProfessorProfileDAO;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
@@ -49,30 +49,30 @@ import net.proteusframework.users.model.Name;
 import static net.proteusframework.ui.miwt.component.Field.InputType;
 
 /**
- * UI Editor for UserProfile.
+ * UI Editor for ProfessorProfile.
  *
  * @author Russ Tennant (russ@i2rd.com)
  */
 @Configurable(preConstruction = true)
-public class UserProfileEditor extends Container
+public class ProfessorProfileEditor extends Container
 
     // We are implementing the ValueEditor API which provides a
     /// consistent API for users of editors. Additionally, the API
     /// works well when used in conjunction with other ValueEditor
     /// implementations.
-    implements ValueEditor<UserProfile>
+    implements ValueEditor<ProfessorProfile>
 {
 
     // This class could also be used as a viewer. It's a choice to make determined by how different
     /// the viewer and editor user interfaces (including metadata) are from each other.
     /** Logger. */
-    private final static Logger _logger = Logger.getLogger(UserProfileEditor.class);
+    private final static Logger _logger = Logger.getLogger(ProfessorProfileEditor.class);
 
     /** DAO instance. */
     @Autowired
-    private UserProfileDAO _userProfileDAO;
+    private ProfessorProfileDAO _ProfessorProfileDAO;
     /** Profile. */
-    private UserProfile _userProfile;
+    private ProfessorProfile _ProfessorProfile;
 
     /** Name Prefix. */
     private TextEditor _namePrefix;
@@ -118,7 +118,7 @@ public class UserProfileEditor extends Container
      *
      * @param profile the profile.
      */
-    public UserProfileEditor(UserProfile profile)
+    public ProfessorProfileEditor(ProfessorProfile profile)
     {
         super();
         setValue(profile);
@@ -136,8 +136,8 @@ public class UserProfileEditor extends Container
         addClassName("user_profile_editor");
         addClassName("property_editor");
 
-        UserProfile value = getValue();
-        if (value == null) value = new UserProfile(); // Just so we don't have to check for null
+        ProfessorProfile value = getValue();
+        if (value == null) value = new ProfessorProfile(); // Just so we don't have to check for null
 
         Name name = value.getName();
         // TextEditors automatically add a "prop" class name.
@@ -248,17 +248,17 @@ public class UserProfileEditor extends Container
      * The value will be evicted from the session.
      */
     @Override
-    public void setValue(UserProfile value)
+    public void setValue(ProfessorProfile value)
     {
-        _userProfile = value;
+        _ProfessorProfile = value;
         if (value != null)
         {
-            if (_userProfileDAO.isAttached(value))
+            if (_ProfessorProfileDAO.isAttached(value))
             {
                 Hibernate.initialize(value);
                 Hibernate.initialize(value.getName());
                 Hibernate.initialize(value.getPostalAddress());
-                _userProfileDAO.evict(value);
+                _ProfessorProfileDAO.evict(value);
             }
         }
         if (isInited())
@@ -268,20 +268,20 @@ public class UserProfileEditor extends Container
     }
 
     @Override
-    public UserProfile commitValue() throws MIWTException
+    public ProfessorProfile commitValue() throws MIWTException
     {
-        UserProfile profile = getValue();
+        ProfessorProfile profile = getValue();
         if(profile != null)
-            _updateUserProfileFromUI(profile);
+            _updateProfessorProfileFromUI(profile);
         return profile;
     }
 
     @Override
-    public UserProfile getUIValue(Level logErrorLevel)
+    public ProfessorProfile getUIValue(Level logErrorLevel)
     {
-        final UserProfile toCopy = getValue();
-        UserProfile profile = toCopy == null ? new UserProfile() : new UserProfile(toCopy);
-        _updateUserProfileFromUI(profile);
+        final ProfessorProfile toCopy = getValue();
+        ProfessorProfile profile = toCopy == null ? new ProfessorProfile() : new ProfessorProfile(toCopy);
+        _updateProfessorProfileFromUI(profile);
         return profile;
     }
 
@@ -308,10 +308,10 @@ public class UserProfileEditor extends Container
     }
 
     @Override
-    public UserProfile getValue()
+    public ProfessorProfile getValue()
     {
         // Do not reattach - that would discard any changes since the last call to commit if they have not been persisted.
-        return _userProfile;
+        return _ProfessorProfile;
     }
 
     /**
@@ -333,11 +333,11 @@ public class UserProfileEditor extends Container
     }
 
     /**
-     * Update UserProfile from UI.
+     * Update ProfessorProfile from UI.
      *
      * @param profile the profile to update.
      */
-    private void _updateUserProfileFromUI(UserProfile profile)
+    private void _updateProfessorProfileFromUI(ProfessorProfile profile)
     {
         profile.getName().setFormOfAddress(_namePrefix.commitValue());
         profile.getName().setFirst(_nameGiven.commitValue());
@@ -371,7 +371,7 @@ public class UserProfileEditor extends Container
      *
      * @param value the value.
      */
-    private void _updateUI(@Nullable UserProfile value)
+    private void _updateUI(@Nullable ProfessorProfile value)
     {
         if (value == null)
         {
@@ -397,11 +397,11 @@ public class UserProfileEditor extends Container
             _city.setValue(address.getCity());
             _state.setValue(address.getState());
             _postalCode.setValue(address.getPostalCode());
-            _twitterLink.setValue(_userProfileDAO.toString(value.getTwitterLink()));
-            _facebookLink.setValue(_userProfileDAO.toString(value.getFacebookLink()));
-            _linkedInLink.setValue(_userProfileDAO.toString(value.getLinkedInLink()));
+            _twitterLink.setValue(_ProfessorProfileDAO.toString(value.getTwitterLink()));
+            _facebookLink.setValue(_ProfessorProfileDAO.toString(value.getFacebookLink()));
+            _linkedInLink.setValue(_ProfessorProfileDAO.toString(value.getLinkedInLink()));
             _aboutMeProse.setValue(value.getAboutMeProse());
-            _aboutMeVideoLink.setValue(_userProfileDAO.toString(value.getAboutMeVideoLink()));
+            _aboutMeVideoLink.setValue(_ProfessorProfileDAO.toString(value.getAboutMeVideoLink()));
             _picture.setValue(value.getPicture());
         }
     }
@@ -415,7 +415,7 @@ public class UserProfileEditor extends Container
      */
     private TextEditor _createURLEditor(final String label, final URL value)
     {
-        TextEditor editor = new TextEditor(TextSources.create(label), _userProfileDAO.toString(value));
+        TextEditor editor = new TextEditor(TextSources.create(label), _ProfessorProfileDAO.toString(value));
         editor.setInputType(InputType.url);
         editor.setValueValidator(new ValidURLValidator()
             .withErrorMessage(CommonValidationText.ARG0_IS_NOT_A_VALID_ARG1, label, "URL"));

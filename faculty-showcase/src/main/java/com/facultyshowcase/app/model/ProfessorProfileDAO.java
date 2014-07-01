@@ -9,7 +9,7 @@
  * into with I2RD.
  */
 
-package com.example.app.model;
+package com.facultyshowcase.app.model;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -48,10 +48,10 @@ import net.proteusframework.ui.search.QLResolverOptions;
  * @author Russ Tennant (russ@i2rd.com)
  */
 @Repository
-public class UserProfileDAO extends DAOHelper
+public class ProfessorProfileDAO extends DAOHelper
 {
     /** Logger. */
-    private final static Logger _logger = Logger.getLogger(UserProfileDAO.class);
+    private final static Logger _logger = Logger.getLogger(ProfessorProfileDAO.class);
 
     /** FileSystem DAO. */
     @Autowired
@@ -107,33 +107,33 @@ public class UserProfileDAO extends DAOHelper
     }
 
     /**
-     * Save UserProfile.
+     * Save ProfessorProfile.
      *
-     * @param userProfile the user profile to save.
+     * @param ProfessorProfile the user profile to save.
      */
-    public void saveUserProfile(UserProfile userProfile)
+    public void saveProfessorProfile(ProfessorProfile ProfessorProfile)
     {
         beginTransaction();
         boolean success = false;
         try
         {
-            final long id = userProfile.getId();
-            String name = userProfile.getName().getLast() + ", " + userProfile.getName().getFirst();
+            final long id = ProfessorProfile.getId();
+            String name = ProfessorProfile.getName().getLast() + ", " + ProfessorProfile.getName().getFirst();
             String pictureName = name + " #" + id;
             final Session session = getSession();
-            FileEntity picture = userProfile.getPicture();
+            FileEntity picture = ProfessorProfile.getPicture();
             if (picture != null)
             {
                 pictureName += _getFileExtensionWithDot(picture);
                 // Ensure our picture file has a unique file name consistent with the profile.
                 if (picture.getId() < 1)
                 {
-                    final CmsSite site = userProfile.getSite();
+                    final CmsSite site = ProfessorProfile.getSite();
                     final DirectoryEntity rootDirectory = FileSystemDirectory.getRootDirectory(site);
-                    DirectoryEntity parentDirectory = _fileSystemDAO.mkdirs(rootDirectory, null, "UserProfilePictures");
+                    DirectoryEntity parentDirectory = _fileSystemDAO.mkdirs(rootDirectory, null, "ProfessorProfilePictures");
                     picture.setName(pictureName);
                     picture = _fileSystemDAO.newFile(parentDirectory, picture, FileSystemEntityCreateMode.truncate);
-                    userProfile.setPicture(picture);
+                    ProfessorProfile.setPicture(picture);
                 }
                 else if(picture instanceof TemporaryFileEntity)
                 {
@@ -143,20 +143,20 @@ public class UserProfileDAO extends DAOHelper
                     picture.setName(pictureName);
                     _fileSystemDAO.update(picture);
                     _fileSystemDAO.setStream(picture, tfe.getStream(), true);
-                    userProfile.setPicture(picture); // In case we are cascading.
+                    ProfessorProfile.setPicture(picture); // In case we are cascading.
                     tfe.deleteStream();
                 }
             }
 
-            if (isTransient(userProfile) || isAttached(userProfile))
-                session.saveOrUpdate(userProfile);
+            if (isTransient(ProfessorProfile) || isAttached(ProfessorProfile))
+                session.saveOrUpdate(ProfessorProfile);
             else
-                session.merge(userProfile);
+                session.merge(ProfessorProfile);
 
             if (picture != null && id == 0)
             {
                 // New user profile. Update picture name to include the ID
-                pictureName = name + " #" + userProfile.getId() + _getFileExtensionWithDot(picture);
+                pictureName = name + " #" + ProfessorProfile.getId() + _getFileExtensionWithDot(picture);
                 picture.setName(pictureName);
                 _fileSystemDAO.update(picture);
             }
@@ -178,16 +178,16 @@ public class UserProfileDAO extends DAOHelper
     /**
      * Delete the specified user profile.
      *
-     * @param userProfile the user profile to delete.
+     * @param ProfessorProfile the user profile to delete.
      */
-    public void deleteUserProfile(UserProfile userProfile)
+    public void deleteProfessorProfile(ProfessorProfile ProfessorProfile)
     {
         beginTransaction();
         boolean success = false;
         try
         {
             final Session session = getSession();
-            session.delete(userProfile);
+            session.delete(ProfessorProfile);
             success = true;
         }
         finally
@@ -202,16 +202,16 @@ public class UserProfileDAO extends DAOHelper
     /**
      * Delete the specified user profiles.
      *
-     * @param userProfiles the user profiles to delete.
+     * @param ProfessorProfiles the user profiles to delete.
      */
-    public void deleteUserProfiles(Collection<? extends UserProfile> userProfiles)
+    public void deleteProfessorProfiles(Collection<? extends ProfessorProfile> ProfessorProfiles)
     {
         beginTransaction();
         boolean success = false;
         try
         {
             final Session session = getSession();
-            userProfiles.forEach(session::delete);
+            ProfessorProfiles.forEach(session::delete);
             success = true;
         }
         finally
@@ -226,9 +226,9 @@ public class UserProfileDAO extends DAOHelper
     /**
      * Delete the specified user profiles.
      *
-     * @param qlBuilder a QL builder that will return UserProfiles to delete.
+     * @param qlBuilder a QL builder that will return ProfessorProfiles to delete.
      */
-    public void deleteUserProfiles(QLBuilder qlBuilder)
+    public void deleteProfessorProfiles(QLBuilder qlBuilder)
     {
         beginTransaction();
         boolean success = false;
@@ -240,13 +240,13 @@ public class UserProfileDAO extends DAOHelper
             final int atATime = 200;
             options.setFetchSize(atATime);
             queryResolver.setOptions(options);
-            try (CloseableIterator<UserProfile> it = queryResolver.iterate())
+            try (CloseableIterator<ProfessorProfile> it = queryResolver.iterate())
             {
                 int count = 0;
                 while (it.hasNext())
                 {
-                    UserProfile userProfile = it.next();
-                    session.delete(userProfile);
+                    ProfessorProfile ProfessorProfile = it.next();
+                    session.delete(ProfessorProfile);
                     if (++count > atATime)
                     {
                         count = 0;

@@ -9,10 +9,10 @@
  * into with I2RD.
  */
 
-package com.example.app.ui;
+package com.facultyshowcase.app.ui;
 
-import com.example.app.model.UserProfile;
-import com.example.app.model.UserProfileDAO;
+import com.facultyshowcase.app.model.ProfessorProfile;
+import com.facultyshowcase.app.model.ProfessorProfileDAO;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -78,7 +78,7 @@ import static net.proteusframework.ui.search.SearchUIImpl.Options;
  *     <li>messages.css</li>
  *     <li>shared-search.css</li>
  *     <li>workspace.css</li>
- *     <li>UserProfileExample1.css *</li>
+ *     <li>ProfessorProfileExample1.css *</li>
  *     <li>jquery.Jcrop.css *</li>
  *     <li>img-cropper.css *</li>
  * </ul>
@@ -94,21 +94,21 @@ import static net.proteusframework.ui.search.SearchUIImpl.Options;
  * @author Russ Tennant (russ@i2rd.com)
  */
 @I18NFile(
-    symbolPrefix = "com.example.app.UserProfileApp",
+    symbolPrefix = "com.facultyshowcase.app.ProfessorProfileApp",
     i18n = {
         @I18N(symbol = "SearchSupplier.Name", l10n = @L10N("User Profile")),
         @I18N(symbol = "SearchSupplier.Description", l10n = @L10N("Default User Profile Search"))
     }
 )
 @Configurable
-public class UserProfileApp extends SearchUIApp
+public class ProfessorProfileApp extends SearchUIApp
 {
     /** Logger. */
-    private final static Logger _logger = Logger.getLogger(UserProfileApp.class);
+    private final static Logger _logger = Logger.getLogger(ProfessorProfileApp.class);
 
     /** Mock Data Access Object. */
     @Autowired
-    private UserProfileDAO _userProfileDAO;
+    private ProfessorProfileDAO _ProfessorProfileDAO;
     /** Site Loader. */
     @Autowired
     private SiteLoader _siteLoader;
@@ -117,7 +117,7 @@ public class UserProfileApp extends SearchUIApp
     /**
      * Create an instance of the application for spring.
      */
-    public UserProfileApp()
+    public ProfessorProfileApp()
     {
         super(null);
     }
@@ -127,7 +127,7 @@ public class UserProfileApp extends SearchUIApp
      *
      * @param session the session.
      */
-    public UserProfileApp(MIWTSession session)
+    public ProfessorProfileApp(MIWTSession session)
     {
         super(session);
         // Set the default application name used in toString() and some other circumstances.
@@ -135,6 +135,8 @@ public class UserProfileApp extends SearchUIApp
         /// TextSources.create method as a placeholder in case we change our mind about i18n later.
         /// This will allow you to quickly / programmatically find text needing i18n and l10n (localization).
         this.defAppName = TextSources.create("User Profile Example App");
+
+
     }
 
 
@@ -156,7 +158,7 @@ public class UserProfileApp extends SearchUIApp
         SearchSupplier searchSupplier = createSearchSupplier();
         Options options = new Options("User Profile");
         ReflectiveAction addAction = CommonActions.ADD.defaultAction();
-        addAction.setTarget(this, "addUserProfile");
+        addAction.setTarget(this, "addProfessorProfile");
         options.addEntityAction(addAction);
         options.addSearchSupplier(searchSupplier);
         SearchUIImpl searchUI = new SearchUIImpl(options);
@@ -167,28 +169,28 @@ public class UserProfileApp extends SearchUIApp
     /**
      * Add a new user profile.
      */
-    void addUserProfile()
+    void addProfessorProfile()
     {
-        final UserProfile userProfile = new UserProfile();
-        userProfile.setSite((CmsSite) _siteLoader.getOperationalSite());
-        setupEditor(userProfile);
+        final ProfessorProfile ProfessorProfile = new ProfessorProfile();
+        ProfessorProfile.setSite((CmsSite) _siteLoader.getOperationalSite());
+        setupEditor(ProfessorProfile);
     }
 
     /**
      * Setup the editor by creating the View and wiring in the necessary
      * controls for persistence with our DAO.
      *
-     * @param userProfile the user profile.
+     * @param ProfessorProfile the user profile.
      */
-    void setupEditor(final UserProfile userProfile)
+    void setupEditor(final ProfessorProfile ProfessorProfile)
     {
-        getActiveSearchUI().getWorkspace().addUITask(new AbstractUITask("upe#" + userProfile.getId())
+        getActiveSearchUI().getWorkspace().addUITask(new AbstractUITask("upe#" + ProfessorProfile.getId())
         {
             @Override
             public LocalizedText getLabel(LocaleContext localeContext)
             {
                 return new LocalizedText("User Profile - " + _getName(
-                    EntityRetriever.getInstance().reattachIfNecessary(userProfile)
+                    EntityRetriever.getInstance().reattachIfNecessary(ProfessorProfile)
                 ));
             }
 
@@ -198,9 +200,9 @@ public class UserProfileApp extends SearchUIApp
 
                 ReflectiveAction saveAction = CommonActions.SAVE.defaultAction();
                 ReflectiveAction cancelAction = CommonActions.CANCEL.defaultAction();
-                PropertyEditor<UserProfile> propertyEditor = new PropertyEditor<>();
+                PropertyEditor<ProfessorProfile> propertyEditor = new PropertyEditor<>();
                 propertyEditor.setTitle(new Label(TextSources.create("User Profile")).setHTMLElement(HTMLElement.h2));
-                propertyEditor.setValueEditor(new UserProfileEditor(userProfile));
+                propertyEditor.setValueEditor(new ProfessorProfileEditor(ProfessorProfile));
                 propertyEditor.setPersistenceActions(saveAction, cancelAction);
 
                 // We are creating the action logic after creating the UI components
@@ -214,7 +216,7 @@ public class UserProfileApp extends SearchUIApp
                     /// proceeding.
 
                     propertyEditor.close();
-                    setupViewer(EntityRetriever.getInstance().reattachIfNecessary(userProfile));
+                    setupViewer(EntityRetriever.getInstance().reattachIfNecessary(ProfessorProfile));
                 });
 
                 saveAction.setActionListener(event -> {
@@ -230,10 +232,10 @@ public class UserProfileApp extends SearchUIApp
                             if (propertyEditor.getModificationState().isModified())
                             {
                                 // Editor indicated data is valid, commit the UI
-                                /// data to the UserProfile and attempt to save it.
-                                final UserProfile commitValue = propertyEditor.commitValue();
+                                /// data to the ProfessorProfile and attempt to save it.
+                                final ProfessorProfile commitValue = propertyEditor.commitValue();
                                 assert commitValue != null;
-                                _userProfileDAO.saveUserProfile(commitValue);
+                                _ProfessorProfileDAO.saveProfessorProfile(commitValue);
                                 success = true;
                             }
                             else success=true;
@@ -264,18 +266,18 @@ public class UserProfileApp extends SearchUIApp
      * Setup the viewer by wiring in the necessary controls to switch to
      * the editor View.
      *
-     * @param userProfile the user profile.
+     * @param ProfessorProfile the user profile.
      */
-    void setupViewer(final UserProfile userProfile)
+    void setupViewer(final ProfessorProfile ProfessorProfile)
     {
         // This is very similar to setupEditor - just a little less complex.
-        getActiveSearchUI().getWorkspace().addUITask(new AbstractUITask("up#" + userProfile.getId())
+        getActiveSearchUI().getWorkspace().addUITask(new AbstractUITask("up#" + ProfessorProfile.getId())
         {
             @Override
             public LocalizedText getLabel(LocaleContext localeContext)
             {
                 return new LocalizedText("User Profile - " + _getName(
-                    EntityRetriever.getInstance().reattachIfNecessary(userProfile)
+                    EntityRetriever.getInstance().reattachIfNecessary(ProfessorProfile)
                 ));
             }
 
@@ -283,7 +285,7 @@ public class UserProfileApp extends SearchUIApp
             public Component createTaskUI(LocaleContext localeContext)
             {
                 final Container viewerWrapper = Container.of(HTMLElement.div, "property-wrapper");
-                UserProfileViewer viewer = new UserProfileViewer(userProfile);
+                ProfessorProfileViewer viewer = new ProfessorProfileViewer(ProfessorProfile);
 
                 // We are only putting actions at the top of this UI - no bottom actions -
                 /// because the viewer UI is much shorter than the editor UI and is likely
@@ -297,7 +299,7 @@ public class UserProfileApp extends SearchUIApp
 
                 editBtn.addActionListener(event -> {
                     viewerWrapper.close();
-                    setupEditor(EntityRetriever.getInstance().reattachIfNecessary(userProfile));
+                    setupEditor(EntityRetriever.getInstance().reattachIfNecessary(ProfessorProfile));
                 });
                 return viewerWrapper;
             }
@@ -306,15 +308,15 @@ public class UserProfileApp extends SearchUIApp
 
 
     /**
-     * Create a search supplier for UserProfiles that you can modify.
+     * Create a search supplier for ProfessorProfiles that you can modify.
      * This supplier has the name, description, and
      * @return a new supplier.
      */
     SearchSupplier createSearchSupplier()
     {
         SearchModelImpl searchModel = new SearchModelImpl();
-        searchModel.setName("UserProfile Search");
-        searchModel.setDisplayName(UserProfileAppLOK.SEARCHSUPPLIER_NAME());
+        searchModel.setName("ProfessorProfile Search");
+        searchModel.setDisplayName(ProfessorProfileAppLOK.SEARCHSUPPLIER_NAME());
         searchModel.getConstraints().add(new SimpleConstraint("keyword")
             {
                 @Override
@@ -346,9 +348,9 @@ public class UserProfileApp extends SearchUIApp
                 .withName("name")
                 .withTableColumn(new FixedValueColumn().withColumnName(CommonColumnText.NAME))
                 .withTableCellRenderer(new CustomCellRenderer("", input -> {
-                    UserProfile userProfile = (UserProfile) input;
-                    if (userProfile == null || userProfile.getName() == null) return null;
-                    return _getName(userProfile);
+                    ProfessorProfile ProfessorProfile = (ProfessorProfile) input;
+                    if (ProfessorProfile == null || ProfessorProfile.getName() == null) return null;
+                    return _getName(ProfessorProfile);
                 }))
                 .withOrderBy(new QLOrderByImpl()
                 {
@@ -365,9 +367,9 @@ public class UserProfileApp extends SearchUIApp
                 .withName("emailAddress")
                 .withTableColumn(new FixedValueColumn().withColumnName(CommonColumnText.EMAIL))
                 .withTableCellRenderer(new CustomCellRenderer("", input -> {
-                    UserProfile userProfile = (UserProfile) input;
-                    if (userProfile == null || userProfile.getEmailAddress() == null) return null;
-                    return userProfile.getEmailAddress();
+                    ProfessorProfile ProfessorProfile = (ProfessorProfile) input;
+                    if (ProfessorProfile == null || ProfessorProfile.getEmailAddress() == null) return null;
+                    return ProfessorProfile.getEmailAddress();
                 }))
                 .withOrderBy(new QLOrderByImpl("emailAddress"))
         );
@@ -385,9 +387,9 @@ public class UserProfileApp extends SearchUIApp
         searchModel.getResultColumns().add(actionColumn);
 
         SearchSupplierImpl searchSupplier = new SearchSupplierImpl();
-        searchSupplier.setName(UserProfileAppLOK.SEARCHSUPPLIER_NAME());
-        searchSupplier.setDescription(UserProfileAppLOK.SEARCHSUPPLIER_DESCRIPTION());
-        searchSupplier.setBuilderSupplier(() -> new QLBuilderImpl(UserProfile.class, "userProfile"));
+        searchSupplier.setName(ProfessorProfileAppLOK.SEARCHSUPPLIER_NAME());
+        searchSupplier.setDescription(ProfessorProfileAppLOK.SEARCHSUPPLIER_DESCRIPTION());
+        searchSupplier.setBuilderSupplier(() -> new QLBuilderImpl(ProfessorProfile.class, "ProfessorProfile"));
         searchSupplier.setSearchModel(searchModel);
         searchSupplier.setSearchUIOperationHandler(new SearchUIOperationHandlerImpl()
         {
@@ -416,19 +418,19 @@ public class UserProfileApp extends SearchUIApp
 
                     case select:
                     case view:
-                        viewUserProfiles(context);
+                        viewProfessorProfiles(context);
                         break;
 
                     case edit:
-                        editUserProfiles(context);
+                        editProfessorProfiles(context);
                         break;
 
                     case delete:
-                        deleteUserProfiles(context);
+                        deleteProfessorProfiles(context);
                         break;
 
                     case add:
-                        addUserProfile();
+                        addProfessorProfile();
                         break;
 
                     default:
@@ -443,12 +445,12 @@ public class UserProfileApp extends SearchUIApp
 
     /**
      * Get the name.
-     * @param userProfile the user profile.
+     * @param ProfessorProfile the user profile.
      * @return  the name or an empty string.
      */
-    private static String _getName(UserProfile userProfile)
+    private static String _getName(ProfessorProfile ProfessorProfile)
     {
-        final Name name = userProfile.getName();
+        final Name name = ProfessorProfile.getName();
         if(name != null)
         {
             final boolean lastNameExists = !isEmptyString(name.getLast());
@@ -470,27 +472,27 @@ public class UserProfileApp extends SearchUIApp
      * Delete the requested user profiles.
      * @param context the context.
      */
-    void deleteUserProfiles(SearchUIOperationContext context)
+    void deleteProfessorProfiles(SearchUIOperationContext context)
     {
         final SearchUI searchUI = context.getSearchUI();
         switch (context.getDataContext())
         {
             case new_instance:
             case lead_selection:
-                UserProfile userProfile = context.getData();
-                if(userProfile != null)
-                    _userProfileDAO.deleteUserProfile(userProfile);
+                ProfessorProfile ProfessorProfile = context.getData();
+                if(ProfessorProfile != null)
+                    _ProfessorProfileDAO.deleteProfessorProfile(ProfessorProfile);
                 break;
             case selection:
                 final QLBuilder selectionQLBuilder = searchUI.getSelectionQLBuilder();
                 if(selectionQLBuilder == null)
-                    _userProfileDAO.deleteUserProfiles(searchUI.getSelection());
+                    _ProfessorProfileDAO.deleteProfessorProfiles(searchUI.getSelection());
                 else
-                    _userProfileDAO.deleteUserProfiles(selectionQLBuilder);
+                    _ProfessorProfileDAO.deleteProfessorProfiles(selectionQLBuilder);
                 break;
             case search:
                 final QLBuilder currentSearchQLBuilder = searchUI.getCurrentSearchQLBuilder();
-                _userProfileDAO.deleteUserProfiles(currentSearchQLBuilder);
+                _ProfessorProfileDAO.deleteProfessorProfiles(currentSearchQLBuilder);
                 _logger.warn("Not viewing all profiles that match search.");
                 break;
         }
@@ -500,16 +502,16 @@ public class UserProfileApp extends SearchUIApp
      * Edit the requested user profiles.
      * @param context the context.
      */
-    void editUserProfiles(SearchUIOperationContext context)
+    void editProfessorProfiles(SearchUIOperationContext context)
     {
         switch (context.getDataContext())
         {
 
             case new_instance:
             case lead_selection:
-                UserProfile userProfile = context.getData();
-                if(userProfile != null)
-                    setupEditor(userProfile);
+                ProfessorProfile ProfessorProfile = context.getData();
+                if(ProfessorProfile != null)
+                    setupEditor(ProfessorProfile);
                 else
                     _logger.warn("No data for " + context);
                 break;
@@ -526,16 +528,16 @@ public class UserProfileApp extends SearchUIApp
      * View the requested user profiles.
      * @param context the context.
      */
-    void viewUserProfiles(SearchUIOperationContext context)
+    void viewProfessorProfiles(SearchUIOperationContext context)
     {
         switch (context.getDataContext())
         {
 
             case new_instance:
             case lead_selection:
-                UserProfile userProfile = context.getData();
-                if(userProfile != null)
-                    setupViewer(userProfile);
+                ProfessorProfile ProfessorProfile = context.getData();
+                if(ProfessorProfile != null)
+                    setupViewer(ProfessorProfile);
                 else
                     _logger.warn("No data for " + context);
                 break;

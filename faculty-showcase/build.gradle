@@ -28,7 +28,7 @@ buildDir = 'build/gradle'
 sourceCompatibility = 1.8
 version = new Version(app_version, project)
 group = app_group
-ext[Version.PROJECT_INFORMATION_PACKAGE] = 'com.example.app.config'
+ext[Version.PROJECT_INFORMATION_PACKAGE] = 'com.facultyshowcase.app.config'
 
 final repoURL = "${repo_venture_tech_url}/${repo_venture_tech_key}"
 buildscript {

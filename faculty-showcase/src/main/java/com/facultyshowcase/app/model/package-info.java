@@ -10,6 +10,6 @@
  */
 
 /**
- * Automation configuration.
+ * Data models for the example application.
  */
-package com.example.app.config.automation;
+package com.facultyshowcase.app.model;
