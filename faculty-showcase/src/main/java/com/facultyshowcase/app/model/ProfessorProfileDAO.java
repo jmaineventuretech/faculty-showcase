@@ -11,11 +11,13 @@
 
 package com.facultyshowcase.app.model;
 
+import com.facultyshowcase.app.model.helpers.WithTransaction;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.jetbrains.annotations.Contract;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Nullable;
@@ -26,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Date;
 
 import net.proteusframework.cms.CmsSite;
 import net.proteusframework.cms.FileSystemDirectory;
@@ -47,15 +50,26 @@ import net.proteusframework.ui.search.QLResolverOptions;
  *
  * @author Russ Tennant (russ@i2rd.com)
  */
-@Repository
+@Configurable
+@Repository()
 public class ProfessorProfileDAO extends DAOHelper
 {
+    /** Default resource name. */
+    public static final String RESOURCE_NAME = "FormDAO";
+
     /** Logger. */
     private final static Logger _logger = Logger.getLogger(ProfessorProfileDAO.class);
 
     /** FileSystem DAO. */
     @Autowired
     private FileSystemDAO _fileSystemDAO;
+
+
+
+
+    public ProfessorProfileDAO() {
+        _logger.trace("Started");
+    }
 
     /**
      * Get the file extension.
@@ -111,10 +125,9 @@ public class ProfessorProfileDAO extends DAOHelper
      *
      * @param ProfessorProfile the user profile to save.
      */
+    @WithTransaction
     public void saveProfessorProfile(ProfessorProfile ProfessorProfile)
     {
-        beginTransaction();
-        boolean success = false;
         try
         {
             final long id = ProfessorProfile.getId();
@@ -148,6 +161,7 @@ public class ProfessorProfileDAO extends DAOHelper
                 }
             }
 
+            ProfessorProfile.setLastModTime(new Date());
             if (isTransient(ProfessorProfile) || isAttached(ProfessorProfile))
                 session.saveOrUpdate(ProfessorProfile);
             else
@@ -160,18 +174,11 @@ public class ProfessorProfileDAO extends DAOHelper
                 picture.setName(pictureName);
                 _fileSystemDAO.update(picture);
             }
-            success = true;
+
         }
         catch (IOException ioe)
         {
             throw new RuntimeException("Unable to access filesystem.", ioe);
-        }
-        finally
-        {
-            if (success)
-                commitTransaction();
-            else
-                recoverableRollbackTransaction();
         }
     }
 
@@ -180,23 +187,11 @@ public class ProfessorProfileDAO extends DAOHelper
      *
      * @param ProfessorProfile the user profile to delete.
      */
+    @WithTransaction
     public void deleteProfessorProfile(ProfessorProfile ProfessorProfile)
     {
-        beginTransaction();
-        boolean success = false;
-        try
-        {
-            final Session session = getSession();
-            session.delete(ProfessorProfile);
-            success = true;
-        }
-        finally
-        {
-            if (success)
-                commitTransaction();
-            else
-                recoverableRollbackTransaction();
-        }
+        final Session session = getSession();
+        session.delete(ProfessorProfile);
     }
 
     /**
@@ -206,21 +201,8 @@ public class ProfessorProfileDAO extends DAOHelper
      */
     public void deleteProfessorProfiles(Collection<? extends ProfessorProfile> ProfessorProfiles)
     {
-        beginTransaction();
-        boolean success = false;
-        try
-        {
-            final Session session = getSession();
-            ProfessorProfiles.forEach(session::delete);
-            success = true;
-        }
-        finally
-        {
-            if (success)
-                commitTransaction();
-            else
-                recoverableRollbackTransaction();
-        }
+        final Session session = getSession();
+        ProfessorProfiles.forEach(session::delete);
     }
 
     /**
@@ -228,45 +210,35 @@ public class ProfessorProfileDAO extends DAOHelper
      *
      * @param qlBuilder a QL builder that will return ProfessorProfiles to delete.
      */
+    @WithTransaction
     public void deleteProfessorProfiles(QLBuilder qlBuilder)
     {
-        beginTransaction();
-        boolean success = false;
-        try
+
+        final Session session = getSession();
+        final QLResolver queryResolver = qlBuilder.getQueryResolver();
+        final QLResolverOptions options = new QLResolverOptions();
+        final int atATime = 200;
+        options.setFetchSize(atATime);
+        queryResolver.setOptions(options);
+        try (CloseableIterator<ProfessorProfile> it = queryResolver.iterate())
         {
-            final Session session = getSession();
-            final QLResolver queryResolver = qlBuilder.getQueryResolver();
-            final QLResolverOptions options = new QLResolverOptions();
-            final int atATime = 200;
-            options.setFetchSize(atATime);
-            queryResolver.setOptions(options);
-            try (CloseableIterator<ProfessorProfile> it = queryResolver.iterate())
+            int count = 0;
+            while (it.hasNext())
             {
-                int count = 0;
-                while (it.hasNext())
+                ProfessorProfile ProfessorProfile = it.next();
+                session.delete(ProfessorProfile);
+                if (++count > atATime)
                 {
-                    ProfessorProfile ProfessorProfile = it.next();
-                    session.delete(ProfessorProfile);
-                    if (++count > atATime)
-                    {
-                        count = 0;
-                        session.flush(); // May need to clear action queues as well to free up memory.
-                    }
+                    count = 0;
+                    session.flush(); // May need to clear action queues as well to free up memory.
                 }
             }
-            catch (Exception e)
-            {
-                throw new HibernateException("Unable to iterate over query results.", e);
-            }
-            success = true;
         }
-        finally
+        catch (Exception e)
         {
-            if (success)
-                commitTransaction();
-            else
-                recoverableRollbackTransaction();
+            throw new HibernateException("Unable to iterate over query results.", e);
         }
+
     }
 
     /**
@@ -314,4 +286,45 @@ public class ProfessorProfileDAO extends DAOHelper
         return link == null ? null : link.toString();
     }
 
+    @WithTransaction
+    public Collection<? extends ProfessorProfile> getProfessorProfiles()
+    {
+        Collection<? extends  ProfessorProfile> ret = null;
+
+        final Session session = getSession();
+
+
+        ret = session.createQuery("from " + ProfessorProfile.class.getName()).list();
+
+
+        return ret;
+    }
+
+
+    @WithTransaction
+    public ProfessorProfile getProfessorProfile(String slug) {
+        return (ProfessorProfile) getSession()
+            .createQuery("from " + ProfessorProfile.class.getName() + " p where p.slug = :slug")
+            .setParameter("slug", slug)
+            .uniqueResult();
+    }
+
+    @WithTransaction
+    public Date getLastModifiedDate(String slug)
+    {
+        return (Date) getSession()
+            .createQuery("select p.lastModTime from " + ProfessorProfile.class.getName() + " p where p.slug = :slug")
+            .setParameter("slug", slug)
+            .uniqueResult();
+
+    }
+
+    @WithTransaction
+    public Date getLastModifiedDate()
+    {
+        return (Date) getSession()
+            .createQuery("select min(p.lastModTime) from " + ProfessorProfile.class.getName() + " p ")
+            .uniqueResult();
+
+    }
 }

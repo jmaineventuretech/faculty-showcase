@@ -15,6 +15,25 @@
         </fileset>
       </configuration>
     </facet>
+    <facet type="hibernate" name="Hibernate">
+      <configuration>
+        <datasource-map>
+          <unit-entry name="hibernate.cfg.xml" />
+        </datasource-map>
+        <naming-strategy-map />
+        <deploymentDescriptor name="hibernate.cfg.xml" url="file://$MODULE_DIR$/src/main/resources/hibernate.cfg.xml" />
+      </configuration>
+    </facet>
+    <facet type="jpa" name="JPA">
+      <configuration>
+        <setting name="validation-enabled" value="true" />
+        <setting name="provider-name" value="" />
+        <datasource-mapping>
+          <factory-entry name="NewPersistenceUnit" />
+        </datasource-mapping>
+        <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/.apt_generated/META-INF/persistence.xml" />
+      </configuration>
+    </facet>
     <facet type="web" name="Web Gradle : faculty-showcase-1.0-SNAPSHOT.war">
       <configuration>
         <webroots>
@@ -26,12 +45,6 @@
           <root url="file://$MODULE_DIR$/src/main/java" />
           <root url="file://$MODULE_DIR$/src/main/resources" />
         </sourceRoots>
-      </configuration>
-    </facet>
-    <facet type="hibernate" name="Hibernate">
-      <configuration>
-        <datasource-map />
-        <naming-strategy-map />
       </configuration>
     </facet>
   </component>
@@ -251,24 +264,25 @@
     <orderEntry type="library" exported="" name="Gradle: spring-aspects-4.0.5.RELEASE" level="project" />
     <orderEntry type="library" exported="" name="Gradle: spring-expression-4.0.5.RELEASE" level="project" />
     <orderEntry type="library" exported="" name="Gradle: spring-tx-4.0.5.RELEASE" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-0.8.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: aspectjweaver-1.8.0" level="project" />
     <orderEntry type="library" exported="" name="Gradle: tomcat-juli-7.0.54" level="project" />
     <orderEntry type="library" exported="" name="Gradle: tomcat-jdbc-7.0.54" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-core-0.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-users-0.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-internet-0.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-data-0.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-ui-0.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-cms-0.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-communication-0.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-processes-0.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-management-0.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: proteusframework-commerce-0.8.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: aspectjrt-1.8.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: httpcore-4.4-alpha1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: httpclient-4.4-alpha1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: httpmime-4.4-alpha1" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-core-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-users-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-internet-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-data-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-ui-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-cms-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-communication-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-commerce-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-processes-0.8.3" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: proteusframework-management-0.8.3" level="project" />
+    <orderEntry type="library" name="Gradle: commons-collections-3.2.1" level="project" />
   </component>
 </module>
 

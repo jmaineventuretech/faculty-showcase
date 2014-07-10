@@ -14,18 +14,16 @@ package com.facultyshowcase.app.ui;
 import com.facultyshowcase.app.model.ProfessorProfile;
 import com.facultyshowcase.app.model.ProfessorProfileDAO;
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.safety.Cleaner;
-import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +33,6 @@ import com.i2rd.media.IMediaStream;
 import com.i2rd.media.IMediaUtility;
 import com.i2rd.media.MediaUtilityFactory;
 
-import net.proteusframework.cms.component.generator.XMLRenderer;
 import net.proteusframework.core.StringFactory;
 import net.proteusframework.core.hibernate.dao.EntityRetriever;
 import net.proteusframework.core.html.HTMLElement;
@@ -94,7 +91,7 @@ public class ProfessorProfileViewer extends Container
         setHTMLElement(HTMLElement.section);
         addClassName("user-profile-viewer");
         // property_viewer is a standard class name.
-        addClassName("property-viewer");
+        addClassName(UIUtil.PROP + "erty-viewer");
         // Add microdata for programmatic / SEO use
         /// OR use RDFa support
         /// You typically only do this in viewers - not editors.
@@ -116,6 +113,7 @@ public class ProfessorProfileViewer extends Container
         /// However, you cannot change the HTMLElement of a Field at this time,
         /// so some of the following code uses a Label which does allow
         /// specification of the HTMLElement.
+        final Field slug = new Field (ProfessorProfile.getSlug(), false);
         final Field namePrefix = new Field(name.getFormOfAddress(), false);
         final Field nameGiven = new Field(name.getFirst(), false);
         final Field nameFamily = new Field(name.getLast(), false);
@@ -130,9 +128,9 @@ public class ProfessorProfileViewer extends Container
         Address address = ProfessorProfile.getPostalAddress();
         // Address lines are always on their own line so we make sure they are enclosed by a block element like a DIV..
         final Label addressLine1 = new Label();
-        addressLine1.setHTMLElement(HTMLElement.div).addClassName("prop").addClassName("address_line");
+        addressLine1.setHTMLElement(HTMLElement.div).addClassName(UIUtil.PROP).addClassName(UIUtil.ADDRESS_LINE);
         final Label addressLine2 = new Label();
-        addressLine2.setHTMLElement(HTMLElement.div).addClassName("prop").addClassName("address_line");
+        addressLine2.setHTMLElement(HTMLElement.div).addClassName(UIUtil.PROP).addClassName(UIUtil.ADDRESS_LINE);
         if(address.getAddressLines().length > 0) addressLine1.setText(TextSources.create(address.getAddressLines()[0]));
         if(address.getAddressLines().length > 1) addressLine2.setText(TextSources.create(address.getAddressLines()[1]));
         final HTMLComponent city = new HTMLComponent();
@@ -141,18 +139,18 @@ public class ProfessorProfileViewer extends Container
         /// For example, if everyone else is using "city", please use "city" too. Don't come up with another class name
         /// that means something similar like "town" or "locality". Consistency has a big impact on
         /// the time required to style HTML as well as the ability to reuse CSS.
-        city.setHTMLElement(HTMLElement.span).addClassName("prop").addClassName("city");
+        city.setHTMLElement(HTMLElement.span).addClassName(UIUtil.PROP).addClassName(UIUtil.CITY);
         if(!StringFactory.isEmptyString(address.getCity()))
         {
             // Our microdata for the city shouldn't include the comma, so this is a bit more complicated than the other examples.
-            city.setText(TextSources.create("<span itemprop=\"addressLocality\">" + address.getCity()
+            city.setText(TextSources.create("<span item" + UIUtil.PROP + "=\"" + UIUtil.ADDRESS + "Locality\">" + address.getCity()
                 + "</span><span class=\"delimiter\">,</span>"));
         }
         else city.setVisible(false);
         final Label state = new Label(TextSources.create(address.getState()));
-        state.addClassName("prop").addClassName("state");
+        state.addClassName(UIUtil.PROP).addClassName(UIUtil.STATE);
         final Label postalCode = new Label(TextSources.create(address.getPostalCode()));
-        postalCode.addClassName("prop").addClassName("postal_code");
+        postalCode.addClassName(UIUtil.PROP).addClassName(UIUtil.POSTAL_CODE);
 
         // Other Contact
         final Field phoneNumber = new Field(ProfessorProfile.getPhoneNumber(), false);
@@ -169,33 +167,8 @@ public class ProfessorProfileViewer extends Container
         // We are going to output HTML received from the outside, so we need to sanitize it first for security reasons.
         /// Sometimes you'll do this sanitation prior to persisting the data. It depends on whether or not you need to
         /// keep the original unsanitized HTML around.
-        String processedHTML = ProfessorProfile.getAboutMeProse();
-        if(!StringFactory.isEmptyString(processedHTML))
-        {
-            // Process the HTML converting links as necessary (adding JSESSIONID(s)
-            /// for URL based session tracking, converting resource links to increase concurrent loading limit,
-            /// CMS link externalization, etc).
-            /// This is *not* sanitation and should always be done before rendering - never before persisting.
-            /// We are doing this before sanitizing the HTML to avoid having to whitelist internal URL protocols, etc.
-            try
-            {
-                processedHTML = XMLRenderer.parseWithRoot(processedHTML, Event.getRequest(), Event.getResponse());
-            }
-            catch (IOException e)
-            {
-                _logger.error("Unable to accept HTML: " + processedHTML, e);
-            }
-
-            // We don't trust the input, so we sanitize it with a whitelist of allowed HTML.
-            Document dirty = Jsoup.parseBodyFragment(processedHTML, "");
-            Whitelist whitelist = Whitelist.relaxed();
-            // Don't allow users to use our website as a link farm
-            whitelist.addEnforcedAttribute("a", "rel", "nofollow");
-            Cleaner cleaner = new Cleaner(whitelist);
-            Document clean = cleaner.clean(dirty);
-            processedHTML = clean.html();
-        }
-        final HTMLComponent aboutMeProse = new HTMLComponent(processedHTML);
+        final HTMLComponent aboutMeProse = new HTMLComponent(UIUtil.scrubHtml(ProfessorProfile.getAboutMeProse(),
+            Event.getRequest(), Event.getResponse()));
         Component aboutMeVideo = null;
         URL videoLink = ProfessorProfile.getAboutMeVideoLink();
         if(videoLink != null)
@@ -266,26 +239,45 @@ public class ProfessorProfileViewer extends Container
             ));
         }
 
+
+        // Professional Information
+
+        // We are going to output HTML received from the outside, so we need to sanitize it first for security reasons.
+        /// Sometimes you'll do this sanitation prior to persisting the data. It depends on whether or not you need to
+        /// keep the original unsanitized HTML around.
+        final HTMLComponent researchSpecialty = new HTMLComponent(UIUtil.scrubHtml(ProfessorProfile.getAboutMeProse(),
+            Event.getRequest(), Event.getResponse()));
+
+
+        final Field rank = ProfessorProfile.getProfessorRank() != null ? new Field(ObjectUtils.toString(ProfessorProfile
+        .getProfessorRank()), false) : null;
+        final DateFormat parser = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+        final Field dateJoined = ProfessorProfile.getDateJoined() != null ? new Field(parser.format(ProfessorProfile.getDateJoined
+        ()), false) : null;
+        final Field onSabbatical = new Field(BooleanUtils.toStringYesNo(ProfessorProfile.isOnSabbatical()),false);
+
         // Now that we've initialized most of the content, we'll add all the components to this View
         /// using the standard HTML structure for a property viewer.
         add(of(HTMLElement.section,
-            "prop-group name",
+            UIUtil.PROP + "-group " + UIUtil.NAME,
             new Label(TextSources.create("Name")).setHTMLElement(HTMLElement.h1),
-            namePrefix.setAttribute("itemprop", "honorificPrefix")
-                .addClassName("prop").addClassName("prefix"),
-            nameGiven.setAttribute("itemprop", "givenName")
-                .addClassName("prop").addClassName("given"),
-            nameFamily.setAttribute("itemprop", "familyName")
-                .addClassName("prop").addClassName("family"),
-            nameSuffix.setAttribute("itemprop", "honorificSuffix")
-                .addClassName("prop").addClassName("suffix")
+            slug.setAttribute("item" + UIUtil.PROP, UIUtil.USER_ID)
+                .addClassName(UIUtil.PROP).addClassName(UIUtil.USER_ID),
+            namePrefix.setAttribute("item" + UIUtil.PROP, "honorificPrefix")
+                .addClassName(UIUtil.PROP).addClassName(UIUtil.PREFIX),
+            nameGiven.setAttribute("item" + UIUtil.PROP, "givenName")
+                .addClassName(UIUtil.PROP).addClassName(UIUtil.FIRST_NAME),
+            nameFamily.setAttribute("item" + UIUtil.PROP, "familyName")
+                .addClassName(UIUtil.PROP).addClassName(UIUtil.LAST_NAME),
+            nameSuffix.setAttribute("item" + UIUtil.PROP, "honorificSuffix")
+                .addClassName(UIUtil.PROP).addClassName(UIUtil.SUFFIX)
         ));
 
         // Add wrapping DIV to group address lines if necessary.
         Component streetAddress = (!StringFactory.isEmptyString(addressLine1.getText()) && !StringFactory.isEmptyString(addressLine2.getText())
-            ? of(HTMLElement.div, "address_lines", addressLine1, addressLine2)
+            ? of(HTMLElement.div, UIUtil.ADDRESS_LINES, addressLine1, addressLine2)
             : (StringFactory.isEmptyString(addressLine1.getText()) ? addressLine2 : addressLine1).setHTMLElement(HTMLElement.div));
-        streetAddress.setAttribute("itemprop", "streetAddress");
+        streetAddress.setAttribute("item" + UIUtil.PROP, "streetAddress");
         boolean hasAddress = (!StringFactory.isEmptyString(addressLine1.getText())
             ||!StringFactory.isEmptyString(addressLine2.getText())
             ||!StringFactory.isEmptyString(city.getText())
@@ -305,16 +297,16 @@ public class ProfessorProfileViewer extends Container
             if(hasAddress)
             {
                 contactContainer.add(of(HTMLElement.div,
-                        "prop-group address",
+                        UIUtil.PROP_GROUP + " " + UIUtil.ADDRESS,
                         // We are using an H2 here because are immediate ancestor is a DIV. If it was a SECTION,
                         /// then we would use an H1. See the ProfessorProfileViewer for a comparison.
                         new Label(TextSources.create("Address")).setHTMLElement(HTMLElement.h2),
                         streetAddress,
-                        of(HTMLElement.div, "place",
+                        of(HTMLElement.div, UIUtil.PLACE,
                             city,
-                            state.setAttribute("itemprop", "addressRegion"),
-                            postalCode.setAttribute("itemprop", "postalCode"))
-                    ).setAttribute("itemprop", "address")
+                            state.setAttribute("item" + UIUtil.PROP, UIUtil.ADDRESS + "Region"),
+                            postalCode.setAttribute("item" + UIUtil.PROP, "postalCode"))
+                    ).setAttribute("item" + UIUtil.PROP, UIUtil.ADDRESS)
                         .setAttribute("itemscope", "")
                         .setAttribute("itemtype", "http://schema.org/PostalAddress")
                 );
@@ -322,18 +314,18 @@ public class ProfessorProfileViewer extends Container
             if(hasPhone)
             {
                 contactContainer.add(of(HTMLElement.div,
-                        "prop phone",
+                        UIUtil.PROP + " " + UIUtil.PHONE,
                         new Label(TextSources.create("Phone")).setHTMLElement(HTMLElement.h2),
-                        phoneNumber.setAttribute("itemprop", "telephone")
+                        phoneNumber.setAttribute("item" + UIUtil.PROP, "telephone")
                         )
                 );
             }
             if(hasEmail)
             {
                 contactContainer.add(of(HTMLElement.div,
-                        "prop email",
+                        UIUtil.PROP + " " + UIUtil.EMAIL,
                         new Label(TextSources.create("Email")).setHTMLElement(HTMLElement.h2),
-                        emailAddress.setAttribute("itemprop", "email")
+                        emailAddress.setAttribute("item" + UIUtil.PROP, UIUtil.EMAIL)
                         )
                 );
             }
@@ -344,7 +336,7 @@ public class ProfessorProfileViewer extends Container
         {
             Container social = of(
                 HTMLElement.section,
-                "social",
+                UIUtil.SOCIAL,
                 new Label(TextSources.create("Social Media Links")).setHTMLElement(HTMLElement.h1)
             );
             add(social);
@@ -354,7 +346,7 @@ public class ProfessorProfileViewer extends Container
                 twitterLink.setText(TextSources.create("Twitter Link"));
                 social.add(of(
                     HTMLElement.div,
-                    "prop twitter",
+                    UIUtil.PROP + " " + UIUtil.TWITTER,
                     TextSources.create("Twitter"),
                     twitterLink
                 ));
@@ -365,7 +357,7 @@ public class ProfessorProfileViewer extends Container
                 facebookLink.setText(TextSources.create("Facebook Link"));
                 social.add(of(
                     HTMLElement.div,
-                    "prop facebook",
+                    UIUtil.PROP + " " + UIUtil.FACEBOOK,
                     TextSources.create("Facebook"),
                     facebookLink
                 ));
@@ -376,7 +368,7 @@ public class ProfessorProfileViewer extends Container
                 linkedInLink.setText(TextSources.create("LinkedIn Link"));
                 social.add(of(
                     HTMLElement.div,
-                    "prop linkedin",
+                    UIUtil.PROP + " " + UIUtil.LINKEDIN,
                     TextSources.create("LinkedIn"),
                     linkedInLink
                 ));
@@ -388,7 +380,7 @@ public class ProfessorProfileViewer extends Container
         {
             Container aboutMe = of(
                 HTMLElement.section,
-                "about_me",
+                UIUtil.ABOUT_ME,
                 new Label(TextSources.create("About Me")).setHTMLElement(HTMLElement.h1)
             );
             add(aboutMe);
@@ -396,7 +388,7 @@ public class ProfessorProfileViewer extends Container
             {
                 aboutMe.add(of(
                     HTMLElement.div,
-                    "prop picture",
+                    UIUtil.PROP + " " + UIUtil.PICTURE,
                     TextSources.create("Picture"),
                     picture
                 ));
@@ -405,8 +397,8 @@ public class ProfessorProfileViewer extends Container
             {
                 aboutMe.add(of(
                     HTMLElement.div,
-                    "prop prose",
-                    TextSources.create("Professional Information, Hobbies, Interests..."),
+                    UIUtil.PROP + " " + UIUtil.PROSE,
+                    TextSources.create("Hobbies, Interests..."),
                     aboutMeProse
                 ));
             }
@@ -416,12 +408,62 @@ public class ProfessorProfileViewer extends Container
                 label.addClassName("vl");
                 aboutMe.add(of(
                     HTMLElement.div,
-                    "prop video",
+                    UIUtil.PROP + " " + UIUtil.VIDEO,
                     label,
                     aboutMeVideo
                 ));
             }
 
+        }
+
+
+        final boolean hasResearchSpecialty = StringFactory.isEmptyString(researchSpecialty.getText());
+        if(!hasResearchSpecialty || rank != null || dateJoined != null || onSabbatical != null)
+        {
+            Container professionalInformation = of(
+                HTMLElement.section,
+                UIUtil.PROFESSIONAL_INFORMATION,
+                new Label(TextSources.create("Professional Information")).setHTMLElement(HTMLElement.h1)
+            );
+            add(professionalInformation);
+            if(rank != null)
+            {
+                professionalInformation.add(of(
+                    HTMLElement.div,
+                    UIUtil.PROP + " " + UIUtil.RANK,
+                    TextSources.create("Professor Rank"),
+                    rank
+                ));
+            }
+            if(dateJoined != null)
+            {
+                Label label = new Label(TextSources.create("Date Joined")).setHTMLElement(HTMLElement.label);
+                professionalInformation.add(of(
+                    HTMLElement.div,
+                    UIUtil.PROP + " " + UIUtil.DATE_JOINED,
+                    label,
+                    dateJoined
+                ));
+            }
+            if(onSabbatical != null)
+            {
+                Label label = new Label(TextSources.create("On Sabbatical")).setHTMLElement(HTMLElement.label);
+                professionalInformation.add(of(
+                    HTMLElement.div,
+                    UIUtil.PROP + " " + UIUtil.ON_SABBATICAL,
+                    label,
+                    onSabbatical
+                ));
+            }
+            if(hasResearchSpecialty)
+            {
+                professionalInformation.add(of(
+                    HTMLElement.div,
+                    UIUtil.PROP + " " + UIUtil.PROSE,
+                    TextSources.create("Research Specialty"),
+                    aboutMeProse
+                ));
+            }
         }
     }
 

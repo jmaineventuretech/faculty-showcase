@@ -3,7 +3,7 @@ import org.ajoberstar.gradle.git.tasks.GitBranchList
 
 import java.text.SimpleDateFormat
 
-ext.aspectjVersion = '1.8.0'
+ext.aspectjVersion = '1.8.1'
 
 // Compilation
 apply plugin: 'java'
@@ -303,9 +303,9 @@ configurations.all {
              }
 //            force 'org.aspectj:aspectjweaver:' + aspectjVersion
         // cache dynamic versions for ...
-        //cacheDynamicVersionsFor 0, 'seconds'
+        cacheDynamicVersionsFor 0, 'seconds'
         // cache changing modules for ...
-        //cacheChangingModulesFor 0, 'seconds'
+        cacheChangingModulesFor 0, 'seconds'
     }
 }
 

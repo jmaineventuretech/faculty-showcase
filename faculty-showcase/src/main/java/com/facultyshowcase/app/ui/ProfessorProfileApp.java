@@ -13,7 +13,9 @@ package com.facultyshowcase.app.ui;
 
 import com.facultyshowcase.app.model.ProfessorProfile;
 import com.facultyshowcase.app.model.ProfessorProfileDAO;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -242,10 +244,18 @@ public class ProfessorProfileApp extends SearchUIApp
                         }
                         catch (Exception e)
                         {
-                            _logger.error("Unexpected error committing changes", e);
-                            // Let the user know that something bad happened.
-                            propertyEditor.getNotifiable()
-                                .sendNotification(NotificationImpl.create(e, "I'm sorry, I was unable to save."));
+                            if (ExceptionUtils.indexOfThrowable(e, ConstraintViolationException.class) > 0) {
+                                _logger.error("Constraint violation", e);
+                                // Let the user know that something bad happened.
+                                propertyEditor.getNotifiable()
+                                    .sendNotification(NotificationImpl.create(e, "Username already in use."));
+                            } else {
+
+                                _logger.error("Unexpected error committing changes", e);
+                                // Let the user know that something bad happened.
+                                propertyEditor.getNotifiable()
+                                    .sendNotification(NotificationImpl.create(e, "I'm sorry, I was unable to save."));
+                            }
                         }
 
                         if(success)

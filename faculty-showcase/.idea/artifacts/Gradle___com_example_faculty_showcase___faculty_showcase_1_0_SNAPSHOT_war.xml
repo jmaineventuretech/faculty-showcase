@@ -199,29 +199,33 @@
           <element id="library" level="project" name="Gradle: spring-aspects-4.0.5.RELEASE" />
           <element id="library" level="project" name="Gradle: spring-expression-4.0.5.RELEASE" />
           <element id="library" level="project" name="Gradle: spring-tx-4.0.5.RELEASE" />
-          <element id="library" level="project" name="Gradle: proteusframework-0.8.1" />
           <element id="library" level="project" name="Gradle: aspectjweaver-1.8.0" />
           <element id="library" level="project" name="Gradle: tomcat-juli-7.0.54" />
           <element id="library" level="project" name="Gradle: tomcat-jdbc-7.0.54" />
-          <element id="library" level="project" name="Gradle: proteusframework-core-0.8.1" />
-          <element id="library" level="project" name="Gradle: proteusframework-users-0.8.1" />
-          <element id="library" level="project" name="Gradle: proteusframework-internet-0.8.1" />
-          <element id="library" level="project" name="Gradle: proteusframework-data-0.8.1" />
-          <element id="library" level="project" name="Gradle: proteusframework-ui-0.8.1" />
-          <element id="library" level="project" name="Gradle: proteusframework-cms-0.8.1" />
-          <element id="library" level="project" name="Gradle: proteusframework-communication-0.8.1" />
-          <element id="library" level="project" name="Gradle: proteusframework-processes-0.8.1" />
-          <element id="library" level="project" name="Gradle: proteusframework-management-0.8.1" />
-          <element id="library" level="project" name="Gradle: proteusframework-commerce-0.8.1" />
           <element id="library" level="project" name="Gradle: aspectjrt-1.8.1" />
           <element id="library" level="project" name="Gradle: httpcore-4.4-alpha1" />
           <element id="library" level="project" name="Gradle: httpclient-4.4-alpha1" />
           <element id="library" level="project" name="Gradle: httpmime-4.4-alpha1" />
+          <element id="library" level="project" name="Gradle: proteusframework-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-core-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-users-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-internet-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-data-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-ui-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-cms-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-communication-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-commerce-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-processes-0.8.3" />
+          <element id="library" level="project" name="Gradle: proteusframework-management-0.8.3" />
           <element id="file-copy" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.2.4/a60a5e993c98c864010053cb901b7eab25306568/gson-2.2.4.jar" />
           <element id="file-copy" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/antlr/antlr/2.7.7/83cd2cd674a217ade95a4bb83a8a14f351f48bd0/antlr-2.7.7.jar" />
           <element id="file-copy" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.6/b7f0fc8f61ecadeb3695f0b9464755eee44374d4/commons-codec-1.6.jar" />
           <element id="file-copy" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.jetty.orbit/org.objectweb.asm/3.3.1.v201105211655/b95d8d7d1a57cf46d9f0e924f8864f94159bffd3/org.objectweb.asm-3.3.1.v201105211655.orbit" />
           <element id="file-copy" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/joda-time/joda-time/2.3/56498efd17752898cfcc3868c1b6211a07b12b8f/joda-time-2.3.jar" />
+          <element id="library" level="project" name="Gradle: joda-time-2.3" />
+          <element id="library" level="project" name="Gradle: gson-2.2.4" />
+          <element id="library" level="project" name="Gradle: commons-codec-1.6" />
+          <element id="library" level="project" name="Gradle: antlr-2.7.7" />
         </element>
       </element>
       <element id="directory" name="META-INF">

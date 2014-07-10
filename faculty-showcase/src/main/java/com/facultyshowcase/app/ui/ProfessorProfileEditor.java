@@ -13,6 +13,7 @@ package com.facultyshowcase.app.ui;
 
 import com.facultyshowcase.app.model.ProfessorProfile;
 import com.facultyshowcase.app.model.ProfessorProfileDAO;
+import com.facultyshowcase.app.model.ProfessorRank;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import net.proteusframework.core.StringFactory;
 import net.proteusframework.core.html.HTMLElement;
@@ -34,13 +36,19 @@ import net.proteusframework.core.locale.TextSources;
 import net.proteusframework.core.notification.Notifiable;
 import net.proteusframework.core.validation.CommonValidationText;
 import net.proteusframework.ui.miwt.MIWTException;
+import net.proteusframework.ui.miwt.component.Calendar;
+import net.proteusframework.ui.miwt.component.Checkbox;
+import net.proteusframework.ui.miwt.component.ComboBox;
 import net.proteusframework.ui.miwt.component.Component;
 import net.proteusframework.ui.miwt.component.Container;
 import net.proteusframework.ui.miwt.component.Label;
 import net.proteusframework.ui.miwt.component.composite.editor.TextEditor;
 import net.proteusframework.ui.miwt.component.composite.editor.ValueEditor;
+import net.proteusframework.ui.miwt.data.SimpleListModel;
 import net.proteusframework.ui.miwt.resource.CKEditorConfig;
 import net.proteusframework.ui.miwt.util.ComponentTreeIterator;
+import net.proteusframework.ui.miwt.validation.CompositeValidator;
+import net.proteusframework.ui.miwt.validation.RegularExpressionValidator;
 import net.proteusframework.ui.miwt.validation.RequiredValueValidator;
 import net.proteusframework.ui.miwt.validation.ValidURLValidator;
 import net.proteusframework.users.model.Address;
@@ -73,6 +81,14 @@ public class ProfessorProfileEditor extends Container
     private ProfessorProfileDAO _ProfessorProfileDAO;
     /** Profile. */
     private ProfessorProfile _ProfessorProfile;
+
+    private TextEditor _slug;
+    private Calendar _dateJoined;
+    private Checkbox _onSabbatical;
+    private ComboBox _rank;
+    private TextEditor _researchSpecialty;
+
+
 
     /** Name Prefix. */
     private TextEditor _namePrefix;
@@ -140,15 +156,32 @@ public class ProfessorProfileEditor extends Container
         if (value == null) value = new ProfessorProfile(); // Just so we don't have to check for null
 
         Name name = value.getName();
+        _slug = new TextEditor(TextSources.create("User Id"), value.getSlug());
+        _slug.addClassName(UIUtil.USER_ENTRY_REQUIRED);
+        _slug.setValueValidator(CompositeValidator.of(new RequiredValueValidator()
+                .withErrorMessage(CommonValidationText.ARG0_IS_REQUIRED, "User Id"),
+            new RegularExpressionValidator(Pattern.compile("\\A\\w+\\z"))
+                .withErrorMessage(TextSources.create("UserId must be alphanumeric or" +
+                        " underscore"),
+                    "User Id")
+        ));
+
+        _onSabbatical = new Checkbox(TextSources.create("On Sabbatical"));
+        _onSabbatical.setSelected(value.isOnSabbatical());
+        _dateJoined = new Calendar();
+        _dateJoined.setDate(value.getDateJoined());
+        _rank = new ComboBox(new SimpleListModel<>(ProfessorRank.values()));
+        _rank.setSelectedObject(value.getProfessorRank());
+
         // TextEditors automatically add a "prop" class name.
         _namePrefix = new TextEditor(TextSources.create("Prefix"), name.getFormOfAddress());
         // Instead of adding a user_entry_required class name we could add the HTML5 required attribute,
         // but that requires a bit more consideration
         //// related to how the violation is handled and presented to the user.
         _nameGiven = new TextEditor(TextSources.create("First"), name.getFirst());
-        _nameGiven.addClassName("user_entry_required");
+        _nameGiven.addClassName(UIUtil.USER_ENTRY_REQUIRED);
         _nameFamily = new TextEditor(TextSources.create("Last"), name.getLast());
-        _nameFamily.addClassName("user_entry_required");
+        _nameFamily.addClassName(UIUtil.USER_ENTRY_REQUIRED);
         _nameSuffix = new TextEditor(TextSources.create("Suffix"), name.getSuffix());
         _nameGiven.setValueValidator(new RequiredValueValidator()
             .withErrorMessage(CommonValidationText.ARG0_IS_REQUIRED, "First Name"));
@@ -159,9 +192,11 @@ public class ProfessorProfileEditor extends Container
         /// and browser versions. If you do use a legend make sure the
         /// text content is enclosed in another element like a label or span .e.g. <legend><span>Name</span></legend>.
         /// Adding the enclosing element will help with styling.
+
         add(of(HTMLElement.section,
-            "name",
+            UIUtil.NAME,
             new Label(TextSources.create("Name")).setHTMLElement(HTMLElement.h1),
+            _slug,
             _namePrefix,
             _nameGiven,
             _nameFamily,
@@ -189,44 +224,59 @@ public class ProfessorProfileEditor extends Container
         _phoneNumber = new TextEditor(TextSources.create("Phone"), value.getPhoneNumber());
         _phoneNumber.setInputType(InputType.tel);
         add(of(HTMLElement.section,
-            "contact",
+            UIUtil.CONTACT,
             new Label(TextSources.create("Contact Information")).setHTMLElement(HTMLElement.h1),
             of(HTMLElement.div,
-                "prop_group address",
-                _addressLine1.addClassName("address_line"),
-                _addressLine2.addClassName("address_line"),
-                _city.addClassName("city"),
-                _state.addClassName("state"),
-                _postalCode.addClassName("postal_code")
+                UIUtil.PROP_GROUP + " " + UIUtil.ADDRESS,
+                _addressLine1.addClassName(UIUtil.ADDRESS_LINE),
+                _addressLine2.addClassName(UIUtil.ADDRESS_LINE),
+                _city.addClassName(UIUtil.CITY),
+                _state.addClassName(UIUtil.STATE),
+                _postalCode.addClassName(UIUtil.POSTAL_CODE)
             ),
-            _emailAddress.addClassName("email"),
-            _phoneNumber.addClassName("phone")
+            _emailAddress.addClassName(UIUtil.EMAIL),
+            _phoneNumber.addClassName(UIUtil.PHONE)
         ));
 
         add(of(HTMLElement.section,
-            "social",
+            UIUtil.SOCIAL,
             new Label(TextSources.create("Social Links")).setHTMLElement(HTMLElement.h1),
-            _twitterLink = (TextEditor) _createURLEditor("Twitter Link", value.getTwitterLink()).addClassName("twitter"),
-            _facebookLink = (TextEditor) _createURLEditor("Facebook Link", value.getFacebookLink()).addClassName("facebook"),
-            _linkedInLink = (TextEditor) _createURLEditor("LinkedIn Link", value.getLinkedInLink()).addClassName("linkedin")
+            _twitterLink = (TextEditor) _createURLEditor("Twitter Link", value.getTwitterLink()).addClassName(UIUtil.TWITTER),
+            _facebookLink = (TextEditor) _createURLEditor("Facebook Link", value.getFacebookLink()).addClassName(UIUtil.FACEBOOK),
+            _linkedInLink = (TextEditor) _createURLEditor("LinkedIn Link", value.getLinkedInLink()).addClassName(UIUtil.LINKEDIN)
         ));
         _picture = new PictureEditor();
         _picture.setPreserveFileEntity(true);
         _picture.setValue(value.getPicture());
         _picture.setLabel(TextSources.create("Picture"));
-        _picture.addClassName("picture");
+        _picture.addClassName(UIUtil.PICTURE);
 
-        _aboutMeProse = new TextEditor(TextSources.create("Professional Information, Hobbies, Interests..."),
+        _aboutMeProse = new TextEditor(TextSources.create("Hobbies, Interests..."),
             value.getAboutMeProse());
         _aboutMeProse.setDisplayHeight(15);
         _aboutMeProse.setDisplayWidth(45);
         _aboutMeProse.setTextEditorConfig(CKEditorConfig.standard);
+
         add(of(HTMLElement.section,
-            "about_me",
+            UIUtil.ABOUT_ME,
             new Label(TextSources.create("About Me")).setHTMLElement(HTMLElement.h1),
             _picture,
-            _aboutMeProse.addClassName("prose"),
-            _aboutMeVideoLink = (TextEditor) _createURLEditor("Video Link", value.getAboutMeVideoLink()).addClassName("video")
+            _aboutMeVideoLink = (TextEditor) _createURLEditor("Video Link", value.getAboutMeVideoLink()).addClassName(UIUtil.VIDEO),
+            _aboutMeProse.addClassName("prose")
+        ));
+
+        _researchSpecialty = new TextEditor(TextSources.create("Research Specialty"), value.getResearchSpecialty());
+        _researchSpecialty.setDisplayHeight(15);
+        _researchSpecialty.setDisplayWidth(45);
+        _researchSpecialty.setTextEditorConfig(CKEditorConfig.standard);
+        add(of(HTMLElement.section,
+            UIUtil.PROFESSIONAL_INFORMATION,
+            new Label(TextSources.create("Professional Information")).setHTMLElement(HTMLElement.h1),
+            of("prop " + UIUtil.DATE_JOINED,new Label(TextSources.create("Date Joined")).setLabelFor(_dateJoined),
+                _dateJoined.addClassName("val")),
+             _onSabbatical,
+            of("prop " + UIUtil.RANK, new Label(TextSources.create("Rank")).setLabelFor(_rank),_rank.addClassName("val")),
+            _researchSpecialty.addClassName(UIUtil.PROSE)
         ));
     }
 
@@ -364,6 +414,13 @@ public class ProfessorProfileEditor extends Container
         // NOTE : if we ever allowed someone to clear/remove their profile picture, then we'd need to delete the file.
         profile.setPicture(_picture.commitValue());
 
+
+        profile.setSlug(_slug.commitValue());
+        profile.setProfessorRank((ProfessorRank) _rank.getSelectedObject());
+        profile.setOnSabbatical(_onSabbatical.isSelected());
+        profile.setResearchSpecialty(_researchSpecialty.commitValue());
+        profile.setDateJoined(_dateJoined.getDate());
+
     }
 
     /**
@@ -403,6 +460,14 @@ public class ProfessorProfileEditor extends Container
             _aboutMeProse.setValue(value.getAboutMeProse());
             _aboutMeVideoLink.setValue(_ProfessorProfileDAO.toString(value.getAboutMeVideoLink()));
             _picture.setValue(value.getPicture());
+
+
+
+            _slug.setValue(value.getSlug());
+            _dateJoined.setDate(value.getDateJoined());
+            _rank.setSelectedObject(value.getProfessorRank());
+            _onSabbatical.setSelected(value.isOnSabbatical());
+            _researchSpecialty.setValue(value.getResearchSpecialty());
         }
     }
 

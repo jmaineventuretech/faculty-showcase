@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,7 +28,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.net.URL;
 import java.util.Date;
 
@@ -43,11 +48,11 @@ import net.proteusframework.users.model.Name;
  * @author Russ Tennant (russ@i2rd.com)
  */
 @Entity
-@Table(name = "professor_profile")
+@Table(name = "professor_profile", uniqueConstraints = {@UniqueConstraint(columnNames = "slug")})
 public class ProfessorProfile implements TimeAuditable
 {
     /** Sequence name. */
-    private final static String SEQ = "ProfessorProfile_seq";
+    private final static String SEQ = "professor_profile_seq";
     /** Identifier. */
     private long _id;
     /** Name - we'll use some of the properties of this class. */
@@ -77,6 +82,16 @@ public class ProfessorProfile implements TimeAuditable
     /** Site. */
     private CmsSite _site;
 
+    private ProfessorRank _professorRank;
+
+    private String _slug;
+
+    private Date _dateJoined;
+
+    private String _researchSpecialty;
+
+    private boolean _onSabbatical;
+
     /**
      * Create a new User Profile.
      */
@@ -104,6 +119,7 @@ public class ProfessorProfile implements TimeAuditable
         setAboutMeProse(toCopy.getAboutMeProse());
         setPicture(toCopy.getPicture());
         setSite(toCopy.getSite());
+        setSlug(toCopy.getSlug());
     }
 
     /**
@@ -115,7 +131,7 @@ public class ProfessorProfile implements TimeAuditable
     @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO, generator = SEQ)
     @SequenceGenerator(name = SEQ, sequenceName = SEQ)
-    @Column(name = "ProfessorProfile_id")
+    @Column(name = "professor_profile_id")
     public Long getId()
     {
         return _id;
@@ -354,6 +370,61 @@ public class ProfessorProfile implements TimeAuditable
         _picture = picture;
     }
 
+    @Enumerated()
+    public ProfessorRank getProfessorRank() {
+        return _professorRank;
+    }
+
+    public void setProfessorRank(ProfessorRank professorRank) {
+        _professorRank = professorRank;
+    }
+
+    @Pattern(regexp = "\\A\\w+\\z")
+    public String getSlug()
+    {
+        return _slug;
+    }
+
+    public void setSlug(String slug)
+    {
+        _slug = slug;
+    }
+
+    @Temporal(value = TemporalType.DATE)
+    public Date getDateJoined()
+    {
+        return _dateJoined;
+    }
+
+    public void setDateJoined(Date dateJoined)
+    {
+        _dateJoined = dateJoined;
+    }
+
+    @Length(max=4000) // Shooting for about 500 words max plus HTML tags
+    @Column(columnDefinition = "varchar(4000)")
+    @SafeHtml
+    public String getResearchSpecialty()
+    {
+        return _researchSpecialty;
+    }
+
+    public void setResearchSpecialty(String researchSpecialty)
+    {
+        _researchSpecialty = researchSpecialty;
+    }
+
+
+    public boolean isOnSabbatical()
+    {
+        return _onSabbatical;
+    }
+
+    public void setOnSabbatical(boolean onSabbatical)
+    {
+        _onSabbatical = onSabbatical;
+    }
+
     @Override
     public Date getLastModTime()
     {
@@ -378,6 +449,7 @@ public class ProfessorProfile implements TimeAuditable
     {
         _createTime = createTime;
     }
+
 
     /**
      * Get the site.
@@ -454,4 +526,5 @@ public class ProfessorProfile implements TimeAuditable
         result = 31 * result + (_site != null ? _site.hashCode() : 0);
         return result;
     }
+
 }

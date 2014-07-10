@@ -49,7 +49,7 @@ import static com.i2rd.hibernate.util.LocationQualifier.Type.orm_location;
 @EnableScheduling
 @EnableSpringConfigured
 // Scan for spring components in my package hierarchy
-@ComponentScan({"com.facultyshowcase.app"})
+@ComponentScan({"com.facultyshowcase"})
 // Add spring xml files if you'd like to register spring beans with XML.
 //@ImportResource("classpath:/spring/*.spring.xml")
 @Import(ProteusWebAppConfig.class)
@@ -109,7 +109,7 @@ public class FacultyShowcaseAppConfig implements ApplicationListener
     public StaticKeyDataConfig staticKeyDataConfig()
     {
         StaticKeyDataConfig config = new StaticKeyDataConfig();
-        config.addScanPackage("com.facultyshowcase.app");
+        config.addScanPackage("com.facultyshowcase");
         return config;
     }
 
@@ -121,7 +121,7 @@ public class FacultyShowcaseAppConfig implements ApplicationListener
     @LocationQualifier(orm_location)
     public String ormLocationComExample()
     {
-        return "classpath*:com/facultyshowcase/app/**/*.hbm.xml";
+        return "classpath*:com/facultyshowcase/**/*.hbm.xml";
     }
 
     /**
@@ -132,7 +132,7 @@ public class FacultyShowcaseAppConfig implements ApplicationListener
     @LocationQualifier(entity_location)
     public String annotatedEntityScanComExample()
     {
-        return "com.facultyshowcase.app";
+        return "com.facultyshowcase";
     }
 
 

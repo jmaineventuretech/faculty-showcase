@@ -44,37 +44,58 @@ public class ProfessorShowcaseDataConversionVersion1
 
 
     /**
-     * User Profile Entity
+     * TODO: Write description of schema update
+     * @return Bean.
+     */
+    @TaskQualifier(TaskQualifier.Type.data_conversion)
+    @Bean
+    public DataConversion addNewFieldsToProfessorEntity2()
+    {
+        List<SQLStatement> ddl = new ArrayList<>();
+        ddl.add(new SQLStatement("alter table professor_profile add column datejoined date",null));
+        ddl.add(new SQLStatement("alter table professor_profile add column onsabbatical boolean not null default false",null));
+        ddl.add(new SQLStatement("alter table professor_profile add column professorrank int4",null));
+        ddl.add(new SQLStatement("alter table professor_profile add column researchspecialty varchar(4000)",null));
+        ddl.add(new SQLStatement("alter table professor_profile add column slug varchar(255)",null));
+        ddl.add(new SQLStatement("alter table professor_profile add constraint UK_efgp5681apm9053oi47hsiy1i  unique (slug)",null));
+        return SQLDataConversion.createSchemaUpdate("Add new fields to professor entity", "Add new fields to professor entity", 2, false, ddl);
+    }
+
+
+    /**
+     * TODO: Write description of schema update
      *
      * @return Bean.
      */
     @TaskQualifier(TaskQualifier.Type.data_conversion)
     @Bean
-    public DataConversion ProfessorProfileEntityDataConversion()
+    public DataConversion createProfessorTable1()
     {
         List<SQLStatement> ddl = new ArrayList<>();
         ddl.add(new SQLStatement(
-            "create table ProfessorProfile (professor_profile_id int8 not null, aboutmeprose varchar(4000), aboutmevideolink varchar(255), "
-                + "createtime timestamp, emailaddress varchar(255), facebooklink varchar(255), lastmodtime timestamp, "
-                + "linkedinlink varchar(255), phonenumber varchar(255), twitterlink varchar(255), name_id int8, picture_id int8, "
-                + "postaladdress_id int8, site_id int8, primary key (professor_profile_id))",
+            "create table professor_profile (professor_profile_id int8 not null, aboutmeprose varchar(4000), " +
+                "aboutmevideolink varchar(255), createtime timestamp, emailaddress varchar(255), facebooklink varchar(255), " +
+                "lastmodtime timestamp, linkedinlink varchar(255), phonenumber varchar(255), twitterlink varchar(255), " +
+                "name_id int8, picture_id int8, postaladdress_id int8, site_id int8, primary key (professor_profile_id))",
             null));
         ddl.add(new SQLStatement(
-            "alter table professor_profile add constraint FK_mrdqdc1atkriccxn00383la4u foreign key (name_id) references personname",
+            "alter table professor_profile add constraint FK_lkst7drs3ivcg3croj4dagv2y foreign key (name_id) references personname",
             null));
         ddl.add(new SQLStatement(
-            "alter table professor_profile add constraint FK_njox9f67ws67qbuo2x8mv6qyu foreign key (picture_id) references "
-                + "FileSystemEntity", null ));
-        ddl.add(new SQLStatement(
-            "alter table professor_profile add constraint FK_3s1hv4k1gnvfe6j2fqtsjcj4f foreign key (postaladdress_id) references address",
+            "alter table professor_profile add constraint FK_2mnmq70emysqc0v4n6or6bj7e foreign key (picture_id) references " +
+                "FileSystemEntity",
             null));
         ddl.add(new SQLStatement(
-            "alter table professor_profile add constraint FK_l51qbba4pla782w3b862hhxl7 foreign key (site_id) references site", null));
-        ddl.add(new SQLStatement("create sequence ProfessorProfile_seq", null));
-
-        return SQLDataConversion.createSchemaUpdate("faculty-app", "Professor Profile Entity", 3, false, ddl);
+            "alter table professor_profile add constraint FK_bthvnnym97p9tagdpuivd70pi foreign key (postaladdress_id) references " +
+                "address",
+            null));
+        ddl.add(new SQLStatement(
+            "alter table professor_profile add constraint FK_enyp0hax8veotunmbjimlvwhk foreign key (site_id) references site",
+            null));
+        ddl.add(new SQLStatement("create sequence professor_profile_seq", null));
+        return SQLDataConversion.createSchemaUpdate("create Professor Profile Table", "create Professor Profile table", 1, false,
+            ddl);
     }
-
 
 
 }
